@@ -59,11 +59,27 @@ public interface DatastoreMessage extends Storable {
     public StorableId getDatastoreId();
 
     /**
+     * Stored message identifier
+     * 
+     * @return
+     */
+    public void setDatastoreId(StorableId storableId);
+
+    /**
      * Stored message timestamp
      * 
      * @return
      */
     public Date getTimestamp();
+
+    // TODO TOCHECK security for updates (the timestamp shouldn't updated outside datastore)
+    /**
+     * Stored message timestamp
+     * 
+     * @return
+     */
+    public void setTimestamp(Date timestamp);
+
 
     /**
      * Get the message identifier

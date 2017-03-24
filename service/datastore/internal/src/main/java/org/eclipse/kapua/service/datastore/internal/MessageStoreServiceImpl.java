@@ -26,7 +26,9 @@ import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.datastore.DatastoreDomain;
 import org.eclipse.kapua.service.datastore.MessageStoreService;
-import org.eclipse.kapua.service.datastore.internal.elasticsearch.DatastoreMediator;
+import org.eclipse.kapua.service.datastore.client.ClientUnavailableException;
+import org.eclipse.kapua.service.datastore.client.InsertResponse;
+import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreMediator;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.MessageListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
@@ -54,31 +56,25 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
     private final AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
     private final PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
 
-    private final MessageStoreFacade esMessageStoreFacade;
+    private final MessageStoreFacade messageStoreFacade;
 
-    /**
-     * Default constructor
-     * 
-     * @since 1.0.0
-     */
-    public MessageStoreServiceImpl() {
+    public MessageStoreServiceImpl() throws ClientUnavailableException {
         super(MessageStoreService.class.getName(), datastoreDomain, DatastoreEntityManagerFactory.getInstance());
 
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(this, accountService);
-        this.esMessageStoreFacade = new MessageStoreFacade(configurationProvider, DatastoreMediator.getInstance());
-        DatastoreMediator.getInstance().setMessageStoreFacade(esMessageStoreFacade);
+        messageStoreFacade = new MessageStoreFacade(configurationProvider, DatastoreMediator.getInstance());
+        DatastoreMediator.getInstance().setMessageStoreFacade(messageStoreFacade);
     }
 
     @Override
-    public StorableId store(KapuaMessage<?, ?> message)
+    public InsertResponse store(KapuaMessage<?, ?> message)
             throws KapuaException {
-        ArgumentValidator.notNull(message, "message");
         ArgumentValidator.notNull(message.getScopeId(), "message.scopeId");
 
         checkDataAccess(message.getScopeId(), Actions.write);
 
         try {
-            return esMessageStoreFacade.store(message);
+            return messageStoreFacade.store(message);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
@@ -93,7 +89,7 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
         checkDataAccess(scopeId, Actions.delete);
 
         try {
-            esMessageStoreFacade.delete(scopeId, id);
+            messageStoreFacade.delete(scopeId, id);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
@@ -109,7 +105,7 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
         checkDataAccess(scopeId, Actions.read);
 
         try {
-            return esMessageStoreFacade.find(scopeId, id, fetchStyle);
+            return messageStoreFacade.find(scopeId, id, fetchStyle);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
@@ -118,13 +114,11 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
     @Override
     public MessageListResult query(MessageQuery query)
             throws KapuaException {
-        ArgumentValidator.notNull(query, "query");
-        ArgumentValidator.notNull(query.getScopeId(), "query.scopeId");
 
         checkDataAccess(query.getScopeId(), Actions.read);
 
         try {
-            return esMessageStoreFacade.query(query);
+            return messageStoreFacade.query(query);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
@@ -139,7 +133,7 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
         checkDataAccess(query.getScopeId(), Actions.read);
 
         try {
-            return esMessageStoreFacade.count(query);
+            return messageStoreFacade.count(query);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }
@@ -154,7 +148,7 @@ public class MessageStoreServiceImpl extends AbstractKapuaConfigurableService im
         checkDataAccess(query.getScopeId(), Actions.delete);
 
         try {
-            esMessageStoreFacade.delete(query);
+            messageStoreFacade.delete(query);
         } catch (Exception e) {
             throw KapuaException.internalError(e);
         }

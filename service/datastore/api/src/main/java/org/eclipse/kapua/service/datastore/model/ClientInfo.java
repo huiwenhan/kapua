@@ -51,6 +51,17 @@ public interface ClientInfo extends Storable {
     public StorableId getId();
 
     /**
+     * Set the record identifier
+     * 
+     * @param id
+     * 
+     * @since 1.0.0
+     */
+    @XmlElement(name = "id")
+    @XmlJavaTypeAdapter(StorableIdAdapter.class)
+    public void setId(StorableId id);
+
+    /**
      * Get the scope id
      * 
      * @return

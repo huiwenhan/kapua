@@ -21,7 +21,7 @@ import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 public class ClientInfoXmlRegistry {
 
     private final KapuaLocator locator = KapuaLocator.getInstance();
-    private final DatastoreObjectFactory factory = locator.getFactory(DatastoreObjectFactory.class);
+    private final ClientInfoFactory factory = locator.getFactory(ClientInfoFactory.class);
 
     /**
      * Creates a {@link ClientInfoListResult} instance
@@ -29,7 +29,7 @@ public class ClientInfoXmlRegistry {
      * @return
      */
     public ClientInfoListResult newClientInfoListResult() {
-        return factory.newClientInfoListResult();
+        return factory.newListResult();
     }
 
     /**
@@ -38,6 +38,6 @@ public class ClientInfoXmlRegistry {
      * @return
      */
     public ClientInfoQuery newQuery() {
-        return factory.newClientInfoQuery(null);
+        return factory.newQuery(null);
     }
 }

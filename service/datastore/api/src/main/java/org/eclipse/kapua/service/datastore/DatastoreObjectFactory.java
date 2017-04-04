@@ -32,82 +32,10 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
  */
 public interface DatastoreObjectFactory extends KapuaObjectFactory {
 
-    /**
-     * Return a new channel information query
-     * 
-     * @param scopeId
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public ChannelInfoQuery newChannelInfoQuery(KapuaId scopeId);
+  
 
-    /**
-     * Return a new channel information query
-     * 
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public ChannelInfoListResult newChannelInfoListResult();
-
-    /**
-     * Return a new client information query
-     * 
-     * @param scopeId
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public ClientInfoQuery newClientInfoQuery(KapuaId scopeId);
-
-    /**
-     * Return a new client information query
-     * 
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public ClientInfoListResult newClientInfoListResult();
-
-    /**
-     * Return a new datastore message query
-     * 
-     * @param scopeId
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public MessageQuery newDatastoreMessageQuery(KapuaId scopeId);
-
-    /**
-     * Return a new metric information query
-     * 
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public MessageListResult newDatastoreMessageListResult();
-
-    /**
-     * Return a new metric information query
-     * 
-     * @param scopeId
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public MetricInfoQuery newMetricInfoQuery(KapuaId scopeId);
-
-    /**
-     * Return a new metric information query
-     * 
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public MetricInfoListResult newMetricInfoListResult();
-
+    
+   
     /**
      * Returns a new Metric instance
      * 
@@ -116,15 +44,4 @@ public interface DatastoreObjectFactory extends KapuaObjectFactory {
      * @return
      */
     public Metric<?> newMetric(String name, Object value);
-
-    /**
-     * Return a new term comparison predicate
-     * 
-     * @param field
-     * @param value
-     * @return
-     * 
-     * @since 1.0.0
-     */
-    public <V> TermPredicate newTermPredicate(StorableField field, V value);
 }

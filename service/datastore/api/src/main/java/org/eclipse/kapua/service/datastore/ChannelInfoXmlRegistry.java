@@ -21,7 +21,7 @@ import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 public class ChannelInfoXmlRegistry {
 
     private final KapuaLocator locator = KapuaLocator.getInstance();
-    private final DatastoreObjectFactory factory = locator.getFactory(DatastoreObjectFactory.class);
+    private final ChannelInfoFactory factory = locator.getFactory(ChannelInfoFactory.class);
 
     /**
      * Creates a {@link ChannelInfoListResult} instance
@@ -29,7 +29,7 @@ public class ChannelInfoXmlRegistry {
      * @return
      */
     public ChannelInfoListResult newChannelInfoListResult() {
-        return factory.newChannelInfoListResult();
+        return factory.newListResult();
     }
 
     /**
@@ -38,6 +38,6 @@ public class ChannelInfoXmlRegistry {
      * @return
      */
     public ChannelInfoQuery newQuery() {
-        return factory.newChannelInfoQuery(null);
+        return factory.newQuery(null);
     }
 }

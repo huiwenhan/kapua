@@ -21,7 +21,7 @@ import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 public class MetricInfoXmlRegistry {
 
     private final KapuaLocator locator = KapuaLocator.getInstance();
-    private final DatastoreObjectFactory factory = locator.getFactory(DatastoreObjectFactory.class);
+    private final MetricInfoFactory factory = locator.getFactory(MetricInfoFactory.class);
 
     /**
      * Creates a {@link MetricInfoListResult} instance
@@ -29,7 +29,7 @@ public class MetricInfoXmlRegistry {
      * @return
      */
     public MetricInfoListResult newMetricInfoListResult() {
-        return factory.newMetricInfoListResult();
+        return factory.newListResult();
     }
 
     /**
@@ -38,6 +38,6 @@ public class MetricInfoXmlRegistry {
      * @return
      */
     public MetricInfoQuery newQuery() {
-        return factory.newMetricInfoQuery(null);
+        return factory.newQuery(null);
     }
 }

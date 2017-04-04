@@ -19,17 +19,18 @@ import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
 
 /**
- * Implementation of query "and" aggregation
+ * {@link AndPredicate} implementation
  * 
- * @since 1.0
- *
+ * @since 1.0.0
  */
 public class AndPredicateImpl implements AndPredicate
 {
-    private List<StorablePredicate> predicates = new ArrayList<StorablePredicate>();
+    private List<StorablePredicate> predicates = new ArrayList<>();
 
     /**
      * Default constructor
+     * 
+     * @since 1.0.0
      */
     public AndPredicateImpl()
     {}
@@ -38,6 +39,8 @@ public class AndPredicateImpl implements AndPredicate
      * Creates an and predicate for the given predicates collection
      * 
      * @param predicates
+     * 
+     * @since 1.0.0
      */
     public AndPredicateImpl(Collection<StorablePredicate> predicates)
     {
@@ -50,17 +53,11 @@ public class AndPredicateImpl implements AndPredicate
         return this.predicates;
     }
 
-    /**
-     * Add the storable predicate to the predicates collection
-     * 
-     * @param predicate
-     * @return
-     */
-    public AndPredicate addPredicate(StorablePredicate predicate)
+    @Override
+    public AndPredicate and(StorablePredicate predicate)
     {
         this.predicates.add(predicate);
         return this;
-
     }
 
     /**

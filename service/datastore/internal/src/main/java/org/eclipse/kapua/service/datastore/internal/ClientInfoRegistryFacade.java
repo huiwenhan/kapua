@@ -35,6 +35,7 @@ import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl
 import org.eclipse.kapua.service.datastore.model.ClientInfo;
 import org.eclipse.kapua.service.datastore.model.ClientInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
+import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.ClientInfoQuery;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
@@ -188,14 +189,14 @@ public class ClientInfoRegistryFacade {
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(id, "id");
 
-        ClientInfoQueryImpl query = new ClientInfoQueryImpl(scopeId);
+        ClientInfoQuery query = new ClientInfoQueryImpl(scopeId);
         query.setLimit(1);
 
         ArrayList<StorableId> ids = new ArrayList<>();
         ids.add(id);
 
-        AndPredicateImpl allPredicates = new AndPredicateImpl();
-        allPredicates.addPredicate(new IdsPredicateImpl(EsSchema.CLIENT_TYPE_NAME, ids));
+        AndPredicate allPredicates = new AndPredicateImpl();
+        allPredicates.and(new IdsPredicateImpl(EsSchema.CLIENT_TYPE_NAME, ids));
 
         ClientInfoListResult result = query(query);
         return result.getFirstItem();

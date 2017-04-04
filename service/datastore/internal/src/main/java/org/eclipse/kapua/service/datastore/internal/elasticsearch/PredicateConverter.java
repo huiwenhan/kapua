@@ -24,6 +24,7 @@ import org.eclipse.kapua.service.datastore.model.query.ExistsPredicate;
 import org.eclipse.kapua.service.datastore.model.query.IdsPredicate;
 import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorablePredicate;
+import org.eclipse.kapua.service.datastore.model.query.StorablePredicateFactory;
 import org.eclipse.kapua.service.datastore.model.query.StorableQuery;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -43,7 +44,7 @@ import com.google.common.base.Strings;
  */
 public class PredicateConverter {
 
-    private static final DatastoreObjectFactory datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+    private static final StorablePredicateFactory storablePredicateFactory = KapuaLocator.getInstance().getFactory(StorablePredicateFactory.class);
 
     /**
      * Converts the Kapua {@link StorablePredicate}s in the {@link StorableQuery} parameter in Elasticsearch {@link QueryBuilder}.
@@ -60,7 +61,7 @@ public class PredicateConverter {
         //
         // Force the ScopeId predicate in order to partition data by it.
         AndPredicate andPredicate = new AndPredicateImpl();
-        andPredicate.getPredicates().add(datastoreObjectFactory.newTermPredicate(ChannelInfoField.SCOPE_ID, query.getScopeId().toCompactId()));
+        andPredicate.getPredicates().add(storablePredicateFactory.newTermPredicate(ChannelInfoField.SCOPE_ID, query.getScopeId().toCompactId()));
 
         if (query.getPredicate() != null) {
             andPredicate.getPredicates().add(query.getPredicate());
@@ -138,10 +139,8 @@ public class PredicateConverter {
         Set<String> stringIds = new HashSet<String>(ids.size());
         for (StorableId id : ids)
             stringIds.add(id.toString());
-
-        QueryBuilder idsQuery = QueryBuilders.idsQuery(predicate.getType()).addIds(stringIds.toArray(new String[] {}));
-
-        return idsQuery;
+        
+        return QueryBuilders.idsQuery(predicate.getType()).addIds(stringIds.toArray(new String[] {}));
     }
 
     /**
@@ -204,9 +203,7 @@ public class PredicateConverter {
         if (predicate == null)
             throw new EsQueryConversionException("Predicate parameter is undefined");
 
-        TermQueryBuilder termQuery = QueryBuilders.termQuery(predicate.getField().field(), predicate.getValue());
-
-        return termQuery;
+        return QueryBuilders.termQuery(predicate.getField().field(), predicate.getValue());
     }
 
     /**
@@ -222,9 +219,7 @@ public class PredicateConverter {
         if (predicate == null)
             throw new EsQueryConversionException(String.format("Predicate parameter is undefined"));
 
-        ExistsQueryBuilder existsQuery = QueryBuilders.existsQuery(predicate.getName());
-
-        return existsQuery;
+        return QueryBuilders.existsQuery(predicate.getName());
     }
 
 }

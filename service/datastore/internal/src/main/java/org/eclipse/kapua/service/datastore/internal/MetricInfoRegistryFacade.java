@@ -35,6 +35,7 @@ import org.eclipse.kapua.service.datastore.internal.model.query.MetricInfoQueryI
 import org.eclipse.kapua.service.datastore.model.MetricInfo;
 import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
+import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -278,14 +279,14 @@ public class MetricInfoRegistryFacade {
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(id, "id");
 
-        MetricInfoQueryImpl query = new MetricInfoQueryImpl(scopeId);
+        MetricInfoQuery query = new MetricInfoQueryImpl(scopeId);
         query.setLimit(1);
 
         ArrayList<StorableId> ids = new ArrayList<>();
         ids.add(id);
 
-        AndPredicateImpl allPredicates = new AndPredicateImpl();
-        allPredicates.addPredicate(new IdsPredicateImpl(EsSchema.MESSAGE_TYPE_NAME, ids));
+        AndPredicate allPredicates = new AndPredicateImpl();
+        allPredicates.and(new IdsPredicateImpl(EsSchema.MESSAGE_TYPE_NAME, ids));
 
         MetricInfoListResult result = query(query);
         return result.getFirstItem();

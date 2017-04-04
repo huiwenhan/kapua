@@ -53,45 +53,8 @@ import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 @KapuaProvider
 public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory {
 
-    @Override
-    public ChannelInfoQuery newChannelInfoQuery(KapuaId scopeId) {
-        return new ChannelInfoQueryImpl(scopeId);
-    }
 
-    @Override
-    public ChannelInfoListResult newChannelInfoListResult() {
-        return new ChannelInfoListResultImpl();
-    }
 
-    @Override
-    public ClientInfoQuery newClientInfoQuery(KapuaId scopeId) {
-        return new ClientInfoQueryImpl(scopeId);
-    }
-
-    @Override
-    public ClientInfoListResult newClientInfoListResult() {
-        return new ClientInfoListResultImpl();
-    }
-
-    @Override
-    public MessageQuery newDatastoreMessageQuery(KapuaId scopeId) {
-        return new MessageQueryImpl(scopeId);
-    }
-
-    @Override
-    public MessageListResult newDatastoreMessageListResult() {
-        return new MessageListResultImpl();
-    }
-
-    @Override
-    public MetricInfoQuery newMetricInfoQuery(KapuaId scopeId) {
-        return new MetricInfoQueryImpl(scopeId);
-    }
-
-    @Override
-    public MetricInfoListResult newMetricInfoListResult() {
-        return new MetricInfoListResultImpl();
-    }
 
     @Override
     public Metric<?> newMetric(String name, Object value) {
@@ -120,11 +83,6 @@ public class DatastoreObjectFactoryImpl implements DatastoreObjectFactory {
             return new BooleanMetric(name, value);
 
         throw new IllegalArgumentException(String.format("Metric value type for "));
-    }
-
-    @Override
-    public <V> TermPredicate newTermPredicate(StorableField field, V value) {
-        return new TermPredicateImpl(field, value);
     }
 
 }

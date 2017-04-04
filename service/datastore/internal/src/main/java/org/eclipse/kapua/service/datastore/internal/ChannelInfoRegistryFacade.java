@@ -35,6 +35,7 @@ import org.eclipse.kapua.service.datastore.internal.model.query.IdsPredicateImpl
 import org.eclipse.kapua.service.datastore.model.ChannelInfo;
 import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
+import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
@@ -203,14 +204,14 @@ public class ChannelInfoRegistryFacade {
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(id, "id");
 
-        ChannelInfoQueryImpl query = new ChannelInfoQueryImpl(scopeId);
+        ChannelInfoQuery query = new ChannelInfoQueryImpl(scopeId);
         query.setLimit(1);
 
         ArrayList<StorableId> ids = new ArrayList<>();
         ids.add(id);
 
-        AndPredicateImpl allPredicates = new AndPredicateImpl();
-        allPredicates.addPredicate(new IdsPredicateImpl(EsSchema.CHANNEL_TYPE_NAME, ids));
+        AndPredicate allPredicates = new AndPredicateImpl();
+        allPredicates.and(new IdsPredicateImpl(EsSchema.CHANNEL_TYPE_NAME, ids));
 
         ChannelInfoListResult result = query(query);
         return result.getFirstItem();

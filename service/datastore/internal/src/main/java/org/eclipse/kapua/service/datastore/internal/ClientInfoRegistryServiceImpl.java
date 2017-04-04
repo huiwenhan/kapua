@@ -50,6 +50,7 @@ import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.SortDirection;
 import org.eclipse.kapua.service.datastore.model.query.SortField;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
+import org.eclipse.kapua.service.datastore.model.query.StorablePredicateFactory;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
     private final PermissionFactory permissionFactory;
     private final ClientInfoRegistryFacade clientInfoFacade;
     private final MessageStoreService messageStoreService;
-    private final DatastoreObjectFactory datastoreObjectFactory;
+    private final StorablePredicateFactory storablePredicateFactory;
 
     /**
      * Default constructor.
@@ -86,7 +87,7 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         authorizationService = locator.getService(AuthorizationService.class);
         permissionFactory = locator.getFactory(PermissionFactory.class);
         messageStoreService = locator.getService(MessageStoreService.class);
-        datastoreObjectFactory = KapuaLocator.getInstance().getFactory(DatastoreObjectFactory.class);
+        storablePredicateFactory = KapuaLocator.getInstance().getFactory(StorablePredicateFactory.class);
 
         MessageStoreService messageStoreService = KapuaLocator.getInstance().getService(MessageStoreService.class);
         ConfigurationProviderImpl configurationProvider = new ConfigurationProviderImpl(messageStoreService, accountService);
@@ -223,11 +224,11 @@ public class ClientInfoRegistryServiceImpl extends AbstractKapuaConfigurableServ
         messageQuery.setSortFields(sort);
 
         RangePredicate messageIdPredicate = new RangePredicateImpl(new StorableFieldImpl(EsSchema.CLIENT_TIMESTAMP), clientInfo.getFirstMessageOn(), null);
-        TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(MessageField.CLIENT_ID, clientInfo.getClientId());
+        TermPredicate clientIdPredicate = storablePredicateFactory.newTermPredicate(MessageField.CLIENT_ID, clientInfo.getClientId());
 
-        AndPredicate andPredicate = new AndPredicateImpl();
-        andPredicate.getPredicates().add(messageIdPredicate);
-        andPredicate.getPredicates().add(clientIdPredicate);
+        AndPredicate andPredicate = storablePredicateFactory.newAndPredicate();
+        andPredicate.and(messageIdPredicate);
+        andPredicate.and(clientIdPredicate);
         messageQuery.setPredicate(andPredicate);
 
         MessageListResult messageList = messageStoreService.query(messageQuery);

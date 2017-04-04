@@ -17,7 +17,7 @@ package org.eclipse.kapua.service.datastore.model.query;
  * @since 1.0
  *
  */
-public interface RangePredicate extends StorablePredicate
+public interface RangePredicate<V extends Comparable<V>> extends StorablePredicate
 {
     /**
      * Get the field to be compared
@@ -27,32 +27,16 @@ public interface RangePredicate extends StorablePredicate
     public StorableField getField();
 
     /**
-     * Return the desired minimum value
+     * Return the minimum value
      * 
      * @return
      */
-    public Object getMinValue();
-
-    /**
-     * Get the minimum value as {@link Comparable} (type)
-     * 
-     * @param clazz
-     * @return
-     */
-    public <V extends Comparable<V>> V getMinValue(Class<V> clazz);
+    public V getMinValue();
 
     /**
      * Get the maximum value
      * 
      * @return
      */
-    public Object getMaxValue();
-
-    /**
-     * Get the maximum value as {@link Comparable} (typed)
-     * 
-     * @param clazz
-     * @return
-     */
-    public <V extends Comparable<V>> V getMaxValue(Class<V> clazz);
+    public V getMaxValue();
 }

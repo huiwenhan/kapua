@@ -16,8 +16,8 @@ import java.util.List;
 /**
  * Query "and" aggregation definition
  * 
- * @since 1.0
- *
+ * @since 1.0.0
+
  */
 public interface AndPredicate extends StorablePredicate
 {
@@ -26,6 +26,20 @@ public interface AndPredicate extends StorablePredicate
      * Get the {@link StorablePredicate} list
      * 
      * @return
+     * 
+     * @since 1.0.0
      */
     public List<StorablePredicate> getPredicates();
+    
+ 
+    /**
+     * Chains the given {@link StorablePredicate} to this {@link AndPredicate}
+     * 
+     * @param The {@link StorablePredicate} to chain.
+     * 
+     * @return This {@link AndPredicate} to continue chaining.
+     * 
+     * @since 1.0.0
+     */
+    public AndPredicate and(StorablePredicate predicates);
 }

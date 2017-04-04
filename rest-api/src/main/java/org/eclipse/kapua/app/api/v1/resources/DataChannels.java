@@ -25,6 +25,7 @@ import org.eclipse.kapua.app.api.v1.resources.model.CountResult;
 import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.app.api.v1.resources.model.StorableEntityId;
 import org.eclipse.kapua.locator.KapuaLocator;
+import org.eclipse.kapua.service.datastore.ChannelInfoFactory;
 import org.eclipse.kapua.service.datastore.ChannelInfoRegistryService;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoField;
@@ -35,6 +36,7 @@ import org.eclipse.kapua.service.datastore.model.ChannelInfoListResult;
 import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.ChannelInfoQuery;
 import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
+import org.eclipse.kapua.service.datastore.model.query.StorablePredicateFactory;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
 import com.google.common.base.Strings;
@@ -49,7 +51,8 @@ public class DataChannels extends AbstractKapuaResource {
 
     private final KapuaLocator locator = KapuaLocator.getInstance();
     private final ChannelInfoRegistryService channelInfoRegistryService = locator.getService(ChannelInfoRegistryService.class);
-    private final DatastoreObjectFactory datastoreObjectFactory = locator.getFactory(DatastoreObjectFactory.class);
+    private final StorablePredicateFactory storablePredicateFactory = locator.getFactory(StorablePredicateFactory.class);
+    private final ChannelInfoFactory channelInfoFactory = locator.getFactory(ChannelInfoFactory.class);
 
     /**
      * Gets the {@link ChannelInfo} list in the scope.
@@ -80,20 +83,20 @@ public class DataChannels extends AbstractKapuaResource {
             @ApiParam(value = "The result set offset", defaultValue = "0") @QueryParam("offset") @DefaultValue("0") int offset,//
             @ApiParam(value = "The result set limit", defaultValue = "50") @QueryParam("limit") @DefaultValue("50") int limit) //
     {
-        ChannelInfoListResult channelInfoListResult = datastoreObjectFactory.newChannelInfoListResult();
+        ChannelInfoListResult channelInfoListResult = channelInfoFactory.newListResult();
         try {
             AndPredicate andPredicate = new AndPredicateImpl();
             if (!Strings.isNullOrEmpty(clientId)) {
-                TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(ChannelInfoField.CLIENT_ID, clientId);
-                andPredicate.getPredicates().add(clientIdPredicate);
+                TermPredicate clientIdPredicate = storablePredicateFactory.newTermPredicate(ChannelInfoField.CLIENT_ID, clientId);
+                andPredicate.and(clientIdPredicate);
             }
 
             if (!Strings.isNullOrEmpty(name)) {
                 ChannelMatchPredicate channelPredicate = new ChannelMatchPredicateImpl(name);
-                andPredicate.getPredicates().add(channelPredicate);
+                andPredicate.and(channelPredicate);
             }
 
-            ChannelInfoQuery query = datastoreObjectFactory.newChannelInfoQuery(scopeId);
+            ChannelInfoQuery query = channelInfoFactory.newQuery(scopeId);
             query.setPredicate(andPredicate);
             query.setOffset(offset);
             query.setLimit(limit);

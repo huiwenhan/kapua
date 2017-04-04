@@ -25,7 +25,9 @@ import org.eclipse.kapua.app.api.v1.resources.model.CountResult;
 import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.app.api.v1.resources.model.StorableEntityId;
 import org.eclipse.kapua.locator.KapuaLocator;
+import org.eclipse.kapua.service.datastore.ClientInfoFactory;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
+import org.eclipse.kapua.service.datastore.MetricInfoFactory;
 import org.eclipse.kapua.service.datastore.MetricInfoRegistryService;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MetricInfoField;
 import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl;
@@ -35,6 +37,7 @@ import org.eclipse.kapua.service.datastore.model.MetricInfoListResult;
 import org.eclipse.kapua.service.datastore.model.query.AndPredicate;
 import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
 import org.eclipse.kapua.service.datastore.model.query.MetricInfoQuery;
+import org.eclipse.kapua.service.datastore.model.query.StorablePredicateFactory;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
 import com.google.common.base.Strings;
@@ -49,7 +52,9 @@ public class DataMetrics extends AbstractKapuaResource {
 
     private final KapuaLocator locator = KapuaLocator.getInstance();
     private final MetricInfoRegistryService metricInfoRegistryService = locator.getService(MetricInfoRegistryService.class);
-    private final DatastoreObjectFactory datastoreObjectFactory = locator.getFactory(DatastoreObjectFactory.class);
+    private final StorablePredicateFactory storablePredicateFactory = locator.getFactory(StorablePredicateFactory.class);
+    private final MetricInfoFactory metricInfoFactory = locator.getFactory(MetricInfoFactory.class);
+
 
     /**
      * Gets the {@link MetricInfo} list in the scope.
@@ -83,25 +88,25 @@ public class DataMetrics extends AbstractKapuaResource {
             @ApiParam(value = "The result set offset", defaultValue = "0") @QueryParam("offset") @DefaultValue("0") int offset,//
             @ApiParam(value = "The result set limit", defaultValue = "50") @QueryParam("limit") @DefaultValue("50") int limit) //
     {
-        MetricInfoListResult metricInfoListResult = datastoreObjectFactory.newMetricInfoListResult();
+        MetricInfoListResult metricInfoListResult = metricInfoFactory.newListResult();
         try {
             AndPredicate andPredicate = new AndPredicateImpl();
             if (!Strings.isNullOrEmpty(clientId)) {
-                TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(MetricInfoField.CLIENT_ID, clientId);
-                andPredicate.getPredicates().add(clientIdPredicate);
+                TermPredicate clientIdPredicate = storablePredicateFactory.newTermPredicate(MetricInfoField.CLIENT_ID, clientId);
+                andPredicate.and(clientIdPredicate);
             }
 
             if (!Strings.isNullOrEmpty(channel)) {
                 ChannelMatchPredicate channelPredicate = new ChannelMatchPredicateImpl(channel);
-                andPredicate.getPredicates().add(channelPredicate);
+                andPredicate.and(channelPredicate);
             }
 
             if (!Strings.isNullOrEmpty(name)) {
-                TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(MetricInfoField.NAME_FULL, name);
-                andPredicate.getPredicates().add(clientIdPredicate);
+                TermPredicate clientIdPredicate = storablePredicateFactory.newTermPredicate(MetricInfoField.NAME_FULL, name);
+                andPredicate.and(clientIdPredicate);
             }
 
-            MetricInfoQuery query = datastoreObjectFactory.newMetricInfoQuery(scopeId);
+            MetricInfoQuery query = metricInfoFactory.newQuery(scopeId);
             query.setPredicate(andPredicate);
             query.setOffset(offset);
             query.setLimit(limit);

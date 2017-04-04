@@ -28,8 +28,10 @@ import org.eclipse.kapua.app.api.v1.resources.model.DateParam;
 import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.app.api.v1.resources.model.StorableEntityId;
 import org.eclipse.kapua.locator.KapuaLocator;
+import org.eclipse.kapua.service.datastore.DatastoreMessageFactory;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
 import org.eclipse.kapua.service.datastore.MessageStoreService;
+import org.eclipse.kapua.service.datastore.MetricInfoFactory;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.ChannelInfoField;
 import org.eclipse.kapua.service.datastore.internal.elasticsearch.MessageField;
 import org.eclipse.kapua.service.datastore.internal.model.query.AndPredicateImpl;
@@ -42,6 +44,7 @@ import org.eclipse.kapua.service.datastore.model.query.ChannelMatchPredicate;
 import org.eclipse.kapua.service.datastore.model.query.MessageQuery;
 import org.eclipse.kapua.service.datastore.model.query.RangePredicate;
 import org.eclipse.kapua.service.datastore.model.query.StorableFetchStyle;
+import org.eclipse.kapua.service.datastore.model.query.StorablePredicateFactory;
 import org.eclipse.kapua.service.datastore.model.query.TermPredicate;
 
 import com.google.common.base.Strings;
@@ -57,6 +60,9 @@ public class DataMessages extends AbstractKapuaResource {
     private final KapuaLocator locator = KapuaLocator.getInstance();
     private final MessageStoreService messageRegistryService = locator.getService(MessageStoreService.class);
     private final DatastoreObjectFactory datastoreObjectFactory = locator.getFactory(DatastoreObjectFactory.class);
+    private final StorablePredicateFactory storablePredicateFactory = locator.getFactory(StorablePredicateFactory.class);
+    private final DatastoreMessageFactory datastoreMessageFactory = locator.getFactory(DatastoreMessageFactory.class);
+
 
     /**
      * Gets the {@link DatastoreMessage} list in the scope.
@@ -90,36 +96,32 @@ public class DataMessages extends AbstractKapuaResource {
             @ApiParam(value = "The channel to filter results. It allows '#' wildcard in last channel level") @QueryParam("channel") String channel,
             @ApiParam(value = "The start date to filter the results. Must come before endDate parameter") @QueryParam("startDate") DateParam startDateParam,
             @ApiParam(value = "The end date to filter the results. Must come after startDate parameter") @QueryParam("endDate") DateParam endDateParam,
-            // @ApiParam(value = "The metric name to filter results") @QueryParam("metricName") String metricName, //
-            // @ApiParam(value = "The metric type to filter results") @QueryParam("metricType") MetricType metricType, //
-            // @ApiParam(value = "The min metric value to filter results") @QueryParam("metricValueMin") String metricMinValue, //
-            // @ApiParam(value = "The max metric value to filter results") @QueryParam("metricValueMax") String metricMaxValue, //
             @ApiParam(value = "The result set offset", defaultValue = "0") @QueryParam("offset") @DefaultValue("0") int offset,//
             @ApiParam(value = "The result set limit", defaultValue = "50") @QueryParam("limit") @DefaultValue("50") int limit) //
     {
-        MessageListResult datastoreMessageListResult = datastoreObjectFactory.newDatastoreMessageListResult();
+        MessageListResult datastoreMessageListResult = datastoreMessageFactory.newListResult();
         try {
             AndPredicate andPredicate = new AndPredicateImpl();
             if (!Strings.isNullOrEmpty(clientId)) {
-                TermPredicate clientIdPredicate = datastoreObjectFactory.newTermPredicate(MessageField.CLIENT_ID, clientId);
-                andPredicate.getPredicates().add(clientIdPredicate);
+                TermPredicate clientIdPredicate = storablePredicateFactory.newTermPredicate(MessageField.CLIENT_ID, clientId);
+                andPredicate.and(clientIdPredicate);
             }
 
             if (!Strings.isNullOrEmpty(channel)) {
                 ChannelMatchPredicate channelPredicate = new ChannelMatchPredicateImpl(channel);
-                andPredicate.getPredicates().add(channelPredicate);
+                andPredicate.and(channelPredicate);
             }
             
             Date startDate = startDateParam != null ? startDateParam.getDate() : null;
             Date endDate = endDateParam != null ? endDateParam.getDate() : null;
             if ( startDate != null || endDate != null) {
                 RangePredicate timestampPredicate = new RangePredicateImpl(ChannelInfoField.TIMESTAMP, startDate, endDate);
-                andPredicate.getPredicates().add(timestampPredicate);
+                andPredicate.and(timestampPredicate);
             }
 
             // manageMetricValueFiltering(andPredicate, metricName, metricType, metricMinValue, metricMaxValue);
 
-            MessageQuery query = datastoreObjectFactory.newDatastoreMessageQuery(scopeId);
+            MessageQuery query = datastoreMessageFactory.newQuery(scopeId);
             query.setPredicate(andPredicate);
             query.setOffset(offset);
             query.setLimit(limit);
